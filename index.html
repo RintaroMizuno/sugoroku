@@ -373,12 +373,12 @@
                 flex-direction: column;
                 gap: 20px;
             }
-
+            
             .roulette-wheel {
                 width: 180px;
                 height: 180px;
             }
-
+            
             .chart-container {
                 height: 350px;
             }
@@ -390,16 +390,16 @@
         <div class="game-header">
             <h1>💰 今里コイン価格変動ルーレット 💰</h1>
             <div class="subtitle">運命のルーレットで今里コインの価格が決まる！</div>
-
+            
             <div class="coin-info">
                 💡 今里コイン1枚 = うまい棒10本分の価値
             </div>
-
+            
             <div class="current-price" id="currentPrice">
                 現在価格: 10本分
             </div>
         </div>
-
+        
         <div class="game-body">
             <div class="roulette-section">
                 <div class="roulette-container">
@@ -407,11 +407,11 @@
                         <div class="roulette-center">💰</div>
                     </div>
                 </div>
-
+                
                 <button class="spin-button" id="spinButton" onclick="spinRoulette()">
                     運命のルーレットを回す！
                 </button>
-
+                
                 <div class="stats">
                     <div class="stat-item">
                         <div class="stat-value" id="spinCount">0</div>
@@ -427,7 +427,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <div class="chart-section">
                 <div class="chart-container">
                     <div class="chart-title">📈 今里コイン価格チャート</div>
@@ -460,7 +460,7 @@
             </div>
         </div>
     </div>
-
+    
     <script>
         const events = [
             { emoji: '🎉', text: '今里地域のお祭りが大成功！観光客が急増した！', change: +2 },
@@ -596,4 +596,41 @@
                 updatePrice(randomEvent.change);
 
                 document.getElementById('modalEmoji').textContent = randomEvent.emoji;
-                document.getElementById
+                document.getElementById('modalText').textContent = randomEvent.text;
+
+                const priceChangeEl = document.getElementById('priceChange');
+                const changeText = randomEvent.change > 0 ? `+${randomEvent.change}本分` : 
+                                    randomEvent.change < 0 ? `${randomEvent.change}本分` : '変動なし';
+                const changeClass = randomEvent.change > 0 ? 'price-up' : 
+                                    randomEvent.change < 0 ? 'price-down' : 'price-stable';
+                
+                priceChangeEl.textContent = `価格変動: ${changeText}`;
+                priceChangeEl.className = `price-change ${changeClass}`;
+                
+                const modal = document.getElementById('modal');
+                modal.classList.add('show');
+                
+                roulette.classList.remove('spinning');
+                
+                button.disabled = false;
+                button.textContent = '運命のルーレットを回す！';
+                
+                isSpinning = false;
+            }, 2500);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.remove('show');
+        }
+
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        setTimeout(updateChart, 100);
+    </script>
+</body>
+</html>
