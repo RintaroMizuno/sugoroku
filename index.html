@@ -89,7 +89,7 @@
         .roulette-container {
             margin: 20px 0;
             position: relative;
-            height: 250px;
+            height: 350px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -97,11 +97,11 @@
         }
 
         .roulette-wheel {
-            width: 180px;
-            height: 180px;
-            border: 6px solid #4a90e2;
+            width: 300px;
+            height: 300px;
+            border: 8px solid #4a90e2;
             border-radius: 50%;
-            margin: 0 auto 25px;
+            margin: 0 auto 20px;
             background: conic-gradient(
                 #ffeb3b 0deg 60deg,
                 #4caf50 60deg 120deg,
@@ -113,23 +113,23 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
+            font-size: 3.5rem;
             transition: transform 2.5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
             position: relative;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
         }
 
         .roulette-wheel::before {
             content: '';
             position: absolute;
-            top: -12px;
+            top: -16px;
             left: 50%;
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-            border-top: 16px solid #4a90e2;
+            border-left: 16px solid transparent;
+            border-right: 16px solid transparent;
+            border-top: 20px solid #4a90e2;
             z-index: 10;
         }
 
@@ -138,15 +138,15 @@
         }
 
         .roulette-center {
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             background: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            font-size: 1.5rem;
+            font-size: 2rem;
         }
 
         .spin-button {
@@ -214,7 +214,7 @@
             padding: 15px;
             background: #f8f9fa;
             border-radius: 15px;
-            height: 320px;
+            height: 350px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
@@ -227,7 +227,7 @@
 
         .chart {
             width: 100%;
-            height: 270px;
+            height: 300px;
             background: white;
             border: 2px solid #ddd;
             border-radius: 10px;
@@ -393,12 +393,26 @@
             }
             
             .roulette-wheel {
-                width: 150px;
-                height: 150px;
+                width: 200px;
+                height: 200px;
+            }
+            
+            .roulette-center {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+            
+            .roulette-container {
+                height: 280px;
             }
             
             .chart-container {
                 height: 280px;
+            }
+            
+            .chart {
+                height: 230px;
             }
             
             .stats {
@@ -538,7 +552,7 @@
             const startLine = document.getElementById('startLine');
             const chartArea = document.querySelector('.chart-area');
             const chartWidth = chartArea.clientWidth;
-            const chartHeight = 270;
+            const chartHeight = 300;
             const maxPoints = 12;
 
             const displayHistory = priceHistory.slice(-maxPoints);
