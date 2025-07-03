@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>今里コイン価格変動ルーレット</title>
     <style>
-        /* ここにCSSコードが入ります */
         body {
             font-family: 'Arial', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -18,7 +17,372 @@
             justify-content: center;
             color: #333;
         }
-        /* ... その他のCSSコード ... */
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .game-body {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+        }
+
+        .roulette-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .chart-section {
+            flex: 1;
+        }
+
+        h1 {
+            color: #4a90e2;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 30px;
+        }
+
+        .coin-info {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 8px rgba(255, 215, 0, 0.3);
+        }
+
+        .current-price {
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border: 2px solid #4a90e2;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4a90e2;
+            box-shadow: 0 4px 8px rgba(74, 144, 226, 0.2);
+        }
+
+        .roulette-container {
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .roulette-wheel {
+            width: 220px;
+            height: 220px;
+            border: 8px solid #4a90e2;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            background: conic-gradient(
+                #ffeb3b 0deg 60deg,
+                #4caf50 60deg 120deg,
+                #2196f3 120deg 180deg,
+                #ff9800 180deg 240deg,
+                #e91e63 240deg 300deg,
+                #9c27b0 300deg 360deg
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            transition: transform 2.5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            position: relative;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        .roulette-wheel::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 20px solid #4a90e2;
+            z-index: 10;
+        }
+
+        .roulette-wheel.spinning {
+            transform: rotate(1800deg);
+        }
+
+        .roulette-center {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            font-size: 2rem;
+        }
+
+        .spin-button {
+            background: linear-gradient(45deg, #4a90e2, #357abd);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 15px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 16px rgba(74, 144, 226, 0.3);
+            margin: 20px 0;
+        }
+
+        .spin-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(74, 144, 226, 0.4);
+        }
+
+        .spin-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .chart-container {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            height: 400px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #4a90e2;
+        }
+
+        .chart {
+            width: 100%;
+            height: 320px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-y-axis {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 40px;
+            height: 100%;
+            background: #f8f9fa;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px 5px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .chart-area {
+            margin-left: 40px;
+            height: 100%;
+            position: relative;
+        }
+
+        .chart-line {
+            stroke: #4a90e2;
+            stroke-width: 3;
+            fill: none;
+            filter: drop-shadow(0 2px 4px rgba(74, 144, 226, 0.3));
+        }
+
+        .chart-dot {
+            fill: #4a90e2;
+            stroke: white;
+            stroke-width: 2;
+            filter: drop-shadow(0 2px 4px rgba(74, 144, 226, 0.3));
+        }
+
+        .start-line {
+            stroke: #ff6b6b;
+            stroke-width: 2;
+            stroke-dasharray: 5,5;
+            opacity: 0.7;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            opacity: 1;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            color: #333;
+            padding: 60px 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-emoji {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            display: block;
+            animation: bounce 0.6s ease;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .modal-text {
+            font-size: 1.4rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .price-change {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .price-up {
+            background: linear-gradient(45deg, #d4edda, #c3e6cb);
+            color: #155724;
+        }
+
+        .price-down {
+            background: linear-gradient(45deg, #f8d7da, #f1b0b7);
+            color: #721c24;
+        }
+
+        .price-stable {
+            background: linear-gradient(45deg, #fff3cd, #ffeaa7);
+            color: #856404;
+        }
+
+        .close-button {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            border: none;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: bold;
+            padding: 15px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 16px rgba(76, 175, 80, 0.3);
+        }
+
+        .close-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(76, 175, 80, 0.4);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4a90e2;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .game-body {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .roulette-wheel {
+                width: 180px;
+                height: 180px;
+            }
+
+            .chart-container {
+                height: 350px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -26,16 +390,210 @@
         <div class="game-header">
             <h1>💰 今里コイン価格変動ルーレット 💰</h1>
             <div class="subtitle">運命のルーレットで今里コインの価格が決まる！</div>
+
+            <div class="coin-info">
+                💡 今里コイン1枚 = うまい棒10本分の価値
+            </div>
+
+            <div class="current-price" id="currentPrice">
+                現在価格: 10本分
             </div>
         </div>
 
+        <div class="game-body">
+            <div class="roulette-section">
+                <div class="roulette-container">
+                    <div class="roulette-wheel" id="roulette">
+                        <div class="roulette-center">💰</div>
+                    </div>
+                </div>
+
+                <button class="spin-button" id="spinButton" onclick="spinRoulette()">
+                    運命のルーレットを回す！
+                </button>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="spinCount">0</div>
+                        <div class="stat-label">回転数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="maxPrice">10</div>
+                        <div class="stat-label">最高価格</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="minPrice">10</div>
+                        <div class="stat-label">最低価格</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-container">
+                    <div class="chart-title">📈 今里コイン価格チャート</div>
+                    <div class="chart" id="chart">
+                        <div class="chart-y-axis" id="chartYAxis"></div>
+                        <div class="chart-area">
+                            <svg width="100%" height="100%" id="chartSvg">
+                                <defs>
+                                    <pattern id="grid" width="40" height="25" patternUnits="userSpaceOnUse">
+                                        <path d="M 40 0 L 0 0 0 25" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+                                    </pattern>
+                                </defs>
+                                <rect width="100%" height="100%" fill="url(#grid)" class="chart-grid"/>
+                                <line id="startLine" class="start-line"/>
+                                <polyline id="chartLine" points="" class="chart-line"/>
+                                <g id="chartDots"></g>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="modal">
+            <div class="modal-content">
+                <span class="modal-emoji" id="modalEmoji">💰</span>
+                <div class="modal-text" id="modalText">結果が表示されます</div>
+                <div class="price-change" id="priceChange">価格変動</div>
+                <button class="close-button" onclick="closeModal()">チャートを確認する</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        /* ここにJavaScriptコードが入ります */
         const events = [
-            // ... イベントデータ ...
+            { emoji: '🎉', text: '今里地域のお祭りが大成功！観光客が急増した！', change: +2 },
+            { emoji: '🏪', text: '今里商店街に新しいお店がオープン！経済が活性化した！', change: +1 },
+            { emoji: '🌟', text: '今里コインがテレビで紹介された！知名度アップ！', change: +2 },
+            { emoji: '🏆', text: '今里のチームが全国大会で優勝！地域の誇りが高まった！', change: +3 },
+            { emoji: '☀️', text: '今里で晴天が続き、農作物が豊作！経済効果抜群！', change: +1 },
+            { emoji: '💼', text: '今里に大企業が進出決定！雇用が増加した！', change: +2 },
+            { emoji: '🎪', text: '今里でイベントが開催！多くの人が訪れた！', change: +1 },
+            { emoji: '🌧️', text: '今里で悪天候が続いた...少し経済活動が停滞した', change: -1 },
+            { emoji: '😅', text: '今里コインの取引システムに軽微な不具合が発生', change: -1 },
+            { emoji: '💸', text: '投資家が一時的に様子見...市場が少し冷え込んだ', change: -2 },
+            { emoji: '🔄', text: '今里コインの価格が安定している', change: 0 },
+            { emoji: '📈', text: '今里コインの取引量が増加！流動性が向上した！', change: +1 },
+            { emoji: '🎁', text: '今里コイン記念キャンペーン開催！注目度アップ！', change: +1 },
+            { emoji: '🌈', text: '今里で虹が見えた！幸運の前兆かも？', change: +1 },
+            { emoji: '🚀', text: '今里コインの技術革新が話題に！未来への期待が高まった！', change: +2 },
+            { emoji: '📰', text: '今里コインが新聞に掲載された！', change: +1 },
+            { emoji: '🏭', text: '今里の工場が増産体制に！経済が活発になった！', change: +1 },
+            { emoji: '🛍️', text: '今里商店街でセール開催！買い物客が増加！', change: +1 },
+            { emoji: '🌪️', text: '今里で台風の影響...一時的に活動が停滞', change: -2 },
+            { emoji: '📉', text: '全国的な景気悪化の影響を受けた...', change: -1 },
+            { emoji: '🌊', text: '今里で水害が発生...復旧に時間がかかりそう', change: -3 },
+            { emoji: '😰', text: '今里コインの信頼性に疑問視する声が...', change: -2 },
+            { emoji: '🔧', text: '今里コインのメンテナンス作業が長引いた', change: -1 },
+            { emoji: '💔', text: '今里の主要企業が撤退を発表...', change: -2 }
         ];
+
         let currentPrice = 10;
-        // ... その他のJavaScriptコード ...
-    </script>
-</body>
-</html>
+        let priceHistory = [10];
+        let maxPrice = 10;
+        let minPrice = 10;
+        let isSpinning = false;
+        let gameCount = 0;
+
+        function updatePrice(change) {
+            currentPrice = Math.max(1, currentPrice + change);
+            priceHistory.push(currentPrice);
+
+            maxPrice = Math.max(maxPrice, currentPrice);
+            minPrice = Math.min(minPrice, currentPrice);
+
+            document.getElementById('currentPrice').textContent = `現在価格: ${currentPrice}本分`;
+
+            document.getElementById('maxPrice').textContent = maxPrice;
+            document.getElementById('minPrice').textContent = minPrice;
+
+            updateChart();
+        }
+
+        function updateChart() {
+            const chartLine = document.getElementById('chartLine');
+            const chartDots = document.getElementById('chartDots');
+            const chartYAxis = document.getElementById('chartYAxis');
+            const startLine = document.getElementById('startLine');
+            const chartArea = document.querySelector('.chart-area');
+            const chartWidth = chartArea.clientWidth;
+            const chartHeight = 320;
+            const maxPoints = 12;
+
+            const displayHistory = priceHistory.slice(-maxPoints);
+
+            const maxPriceInChart = Math.max(...displayHistory, 10);
+            const minPriceInChart = Math.min(...displayHistory, 10);
+            const centerPrice = 10;
+            const range = Math.max(maxPriceInChart - centerPrice, centerPrice - minPriceInChart, 3);
+            const yMax = centerPrice + range;
+            const yMin = centerPrice - range;
+
+            chartYAxis.innerHTML = '';
+            const ySteps = 8;
+            for (let i = 0; i <= ySteps; i++) {
+                const value = yMax - (i * (yMax - yMin) / ySteps);
+                const div = document.createElement('div');
+                div.style.fontSize = '11px';
+                div.style.textAlign = 'center';
+                div.style.lineHeight = '1';
+                if (Math.abs(value - 10) < 0.1) {
+                    div.style.fontWeight = 'bold';
+                    div.style.color = '#ff6b6b';
+                }
+                div.textContent = Math.round(value);
+                chartYAxis.appendChild(div);
+            }
+
+            const startY = ((yMax - centerPrice) / (yMax - yMin)) * (chartHeight - 40) + 20;
+            startLine.setAttribute('x1', 0);
+            startLine.setAttribute('y1', startY);
+            startLine.setAttribute('x2', chartWidth);
+            startLine.setAttribute('y2', startY);
+
+            const points = displayHistory.map((price, index) => {
+                const x = (index / Math.max(displayHistory.length - 1, 1)) * (chartWidth - 40) + 20;
+                const y = ((yMax - price) / (yMax - yMin)) * (chartHeight - 40) + 20;
+                return { x, y, price };
+            });
+
+            const linePoints = points.map(p => `${p.x},${p.y}`).join(' ');
+            chartLine.setAttribute('points', linePoints);
+
+            chartDots.innerHTML = '';
+            points.forEach((point, index) => {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', point.x);
+                circle.setAttribute('cy', point.y);
+                circle.setAttribute('r', index === points.length - 1 ? 6 : 4);
+                circle.setAttribute('class', 'chart-dot');
+                if (index === points.length - 1) {
+                    circle.setAttribute('fill', '#ff6b6b');
+                }
+                chartDots.appendChild(circle);
+            });
+        }
+
+        function spinRoulette() {
+            if (isSpinning) return;
+
+            isSpinning = true;
+            const button = document.getElementById('spinButton');
+            const roulette = document.getElementById('roulette');
+
+            button.disabled = true;
+            button.textContent = '運命を決定中...';
+
+            roulette.classList.add('spinning');
+
+            setTimeout(() => {
+                gameCount++;
+                document.getElementById('spinCount').textContent = gameCount;
+
+                const randomEvent = events[Math.floor(Math.random() * events.length)];
+
+                updatePrice(randomEvent.change);
+
+                document.getElementById('modalEmoji').textContent = randomEvent.emoji;
+                document.getElementById
