@@ -136,7 +136,10 @@
         .roulette-wheel.spinning {
             transform: rotate(1800deg);
         }
-
+        .roulette-wheel.spinning-smooth {
+            transform: rotate(2160deg); /* 6回転 */
+            transition: transform 5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
         .roulette-center {
             width: 80px;
             height: 80px;
