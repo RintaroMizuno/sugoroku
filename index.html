@@ -3,673 +3,820 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>今里コイン価格変動ルーレット</title>
+    <title>💰 今里コイン (WATARU) - リアルタイム価格</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        * {
             margin: 0;
-            padding: 15px;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #333;
-            overflow: hidden;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .game-container {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 1100px;
-            width: 100%;
-            max-height: 95vh;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafd;
+            color: #1e1932;
+            min-height: 100vh;
         }
 
-        .game-header {
-            text-align: center;
-            margin-bottom: 20px;
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            grid-template-rows: auto 1fr;
+            gap: 20px;
+            min-height: 100vh;
+            grid-template-areas: 
+                "sidebar rates"
+                "sidebar chart";
         }
 
-        .game-body {
+        .sidebar {
+            grid-area: sidebar;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #eff2f5;
             display: flex;
             flex-direction: column;
             gap: 20px;
-            flex: 1;
+            box-shadow: 0 4px 8px rgba(138, 147, 164, 0.1);
         }
 
-        .main-content {
-            display: flex;
-            gap: 30px;
-            align-items: flex-start;
-        }
-
-        .roulette-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        .rates-section {
+            grid-area: rates;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #eff2f5;
+            box-shadow: 0 4px 8px rgba(138, 147, 164, 0.1);
         }
 
         .chart-section {
-            flex: 1;
+            grid-area: chart;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid #eff2f5;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 8px rgba(138, 147, 164, 0.1);
         }
 
-        h1 {
-            color: #4a90e2;
-            font-size: 1.8rem;
-            margin-bottom: 8px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        /* Header Section */
+        .coin-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
         }
 
-        .subtitle {
-            color: #666;
-            font-size: 0.9rem;
+        .coin-logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .coin-info h1 {
+            font-size: 20px;
+            margin-bottom: 4px;
+            color: #1e1932;
+        }
+
+        .coin-symbol {
+            color: #8a93a4;
+            font-size: 14px;
+        }
+
+        /* Price Section */
+        .current-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e1932;
+            margin-bottom: 16px;
+        }
+
+        .price-change {
+            background: #00d4aa;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .price-change.negative {
+            background: #ea3943;
+        }
+
+        /* Sidebar Sections */
+        .sidebar-section {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #eff2f5;
+        }
+
+        .sidebar-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1e1932;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
             margin-bottom: 20px;
         }
 
-        .current-price {
-            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
-            border: 2px solid #4a90e2;
-            border-radius: 15px;
-            padding: 15px;
-            margin: 15px 0;
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: #4a90e2;
-            box-shadow: 0 4px 8px rgba(74, 144, 226, 0.2);
+        .stat-card {
+            background: #ffffff;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #eff2f5;
+            text-align: left;
+            box-shadow: 0 2px 4px rgba(138, 147, 164, 0.05);
         }
 
-        .roulette-container {
-            margin: 20px 0;
-            position: relative;
-            height: 350px;
+        .stat-small-label {
+            font-size: 11px;
+            color: #8a93a4;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .stat-big-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e1932;
+        }
+
+        /* Info Items */
+        .info-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eff2f5;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #8a93a4;
+            font-size: 14px;
+        }
+
+        .info-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-link {
+            color: #3861fb;
+            text-decoration: none;
+            background: #f8fafd;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #eff2f5;
+            font-size: 12px;
+        }
+
+        .info-link:hover {
+            background: #eff2f5;
+        }
+
+        /* Rate List */
+        .rate-list {
+            list-style: none;
+        }
+
+        .rate-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eff2f5;
+        }
+
+        .rate-item:last-child {
+            border-bottom: none;
+        }
+
+        .rate-name {
+            color: #8a93a4;
+            font-size: 14px;
+        }
+
+        .rate-value {
+            color: #1e1932;
+            font-weight: 600;
+        }
+
+        /* Chart */
+        .chart-container {
+            flex: 1;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .roulette-wheel {
-            width: 300px;
-            height: 300px;
-            border: 8px solid #4a90e2;
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            background: conic-gradient(
-                #ffeb3b 0deg 60deg,
-                #4caf50 60deg 120deg,
-                #2196f3 120deg 180deg,
-                #ff9800 180deg 240deg,
-                #e91e63 240deg 300deg,
-                #9c27b0 300deg 360deg
-            );
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3.5rem;
-            transition: transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             position: relative;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            flex-shrink: 0;
         }
 
-        .roulette-wheel::before {
-            content: '';
-            position: absolute;
-            top: -16px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 16px solid transparent;
-            border-right: 16px solid transparent;
-            border-top: 20px solid #4a90e2;
-            z-index: 10;
+        .chart-wrapper {
+            position: relative;
+            margin-right: 50px; /* Y軸数字用の外側スペース */
         }
 
-        .roulette-wheel.spinning {
-           transform: rotate(2160deg); /* 6回転 */
-           transition: transform 5s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        .roulette-wheel.spinning-smooth {
-            transform: rotate(2160deg); /* 6回転 */
-            transition: transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-        .roulette-center {
-            width: 80px;
-            height: 80px;
-            background: white;
-            border-radius: 50%;
+        .chart-header {
             display: flex;
+            justify-content: between;
             align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            font-size: 2rem;
-        }
-
-        .spin-button {
-            background: linear-gradient(45deg, #4a90e2, #357abd);
-            border: none;
-            color: white;
-            font-size: 1.2rem;
-            font-weight: bold;
-            padding: 12px 25px;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 6px 12px rgba(74, 144, 226, 0.3);
-        }
-
-        .spin-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(74, 144, 226, 0.4);
-        }
-
-        .spin-button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .stats {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-            width: 100%;
-        }
-
-        .stat-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            border: 2px solid #e9ecef;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-            flex: 1;
-            text-align: center;
-        }
-
-        .stat-item:hover {
-            border-color: #4a90e2;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(74, 144, 226, 0.1);
-        }
-
-        .stat-value {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #4a90e2;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .chart-container {
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 15px;
-            height: 350px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
         }
 
         .chart-title {
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #4a90e2;
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e1932;
         }
 
         .chart {
             width: 100%;
-            height: 300px;
-            background: white;
-            border: 2px solid #ddd;
-            border-radius: 10px;
+            height: 400px;
+            background: #ffffff;
+            border-radius: 8px;
             position: relative;
-            overflow: hidden;
+            border: 1px solid #eff2f5;
+            overflow: visible; /* 枠外の要素も表示 */
         }
 
-        .chart-y-axis {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 35px;
-            height: 100%;
-            background: #f8f9fa;
-            border-right: 1px solid #ddd;
+        .rating {
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 8px 3px;
-            font-size: 11px;
-            color: #666;
+            gap: 4px;
+            align-items: center;
         }
 
-        .chart-area {
-            margin-left: 35px;
-            height: 100%;
-            position: relative;
-        }
-
-        .chart-line {
-            stroke: #4a90e2;
-            stroke-width: 3;
-            fill: none;
-            filter: drop-shadow(0 2px 4px rgba(74, 144, 226, 0.3));
-        }
-
-        .chart-dot {
-            fill: #4a90e2;
-            stroke: white;
-            stroke-width: 2;
-            filter: drop-shadow(0 2px 4px rgba(74, 144, 226, 0.3));
-        }
-
-        .start-line {
-            stroke: #ff6b6b;
-            stroke-width: 2;
-            stroke-dasharray: 5,5;
-            opacity: 0.7;
-        }
-
-        .modal {
-            display: none;
+        /* Popup styles */
+        .popup {
             position: fixed;
-            z-index: 1000;
-            left: 0;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal.show {
-            display: flex;
-            opacity: 1;
-            align-items: center;
+            background: rgba(0,0,0,0.8);
+            display: none;
             justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
 
-        .modal-content {
-            background: white;
-            color: #333;
-            padding: 40px 30px;
+        .roulette-container {
+            background: #ffffff;
+            border: 1px solid #eff2f5;
             border-radius: 20px;
+            padding: 40px;
             text-align: center;
-            max-width: 400px;
+            max-width: 500px;
             width: 90%;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-            transform: scale(0.8);
-            transition: transform 0.3s ease;
+            box-shadow: 0 4px 8px rgba(138, 147, 164, 0.1);
         }
 
-        .modal.show .modal-content {
-            transform: scale(1);
+        .roulette-container h2 {
+            color: #1e1932;
+            margin-bottom: 20px;
         }
 
-        .modal-emoji {
-            font-size: 4rem;
-            margin-bottom: 15px;
-            display: block;
-            animation: bounce 0.6s ease;
+        .roulette {
+            width: 300px;
+            height: 300px;
+            border: 10px solid #667eea;
+            border-radius: 50%;
+            margin: 20px auto;
+            position: relative;
+            transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);
         }
 
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-10px);
-            }
-            60% {
-                transform: translateY(-5px);
-            }
+        .roulette-section {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            clip-path: polygon(0% 100%, 100% 100%, 100% 0%);
         }
 
-        .modal-text {
-            font-size: 1.2rem;
-            line-height: 1.6;
-            margin-bottom: 15px;
+        .roulette-section:nth-child(1) { background: #e74c3c; transform: rotate(0deg); }
+        .roulette-section:nth-child(2) { background: #16a085; transform: rotate(45deg); }
+        .roulette-section:nth-child(3) { background: #3498db; transform: rotate(90deg); }
+        .roulette-section:nth-child(4) { background: #2ecc71; transform: rotate(135deg); }
+        .roulette-section:nth-child(5) { background: #f39c12; transform: rotate(180deg); }
+        .roulette-section:nth-child(6) { background: #9b59b6; transform: rotate(225deg); }
+        .roulette-section:nth-child(7) { background: #34495e; transform: rotate(270deg); }
+        .roulette-section:nth-child(8) { background: #e67e22; transform: rotate(315deg); }
+
+        .roulette-pointer {
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #ffffff;
+            z-index: 10;
         }
 
-        .price-change {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 15px 0;
-            padding: 15px;
+        .result-display {
+            margin-top: 20px;
+            padding: 20px;
+            background: #0d1421;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            font-size: 1.2rem;
+            min-height: 60px;
+            border: 1px solid #2d3748;
+            color: #ffffff;
         }
 
-        .price-up {
-            background: linear-gradient(45deg, #d4edda, #c3e6cb);
-            color: #155724;
-        }
-
-        .price-down {
-            background: linear-gradient(45deg, #f8d7da, #f1b0b7);
-            color: #721c24;
-        }
-
-        .price-stable {
-            background: linear-gradient(45deg, #fff3cd, #ffeaa7);
-            color: #856404;
-        }
-
-        .close-button {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            border: none;
-            color: white;
-            font-size: 1.1rem;
+        .event-text {
             font-weight: bold;
-            padding: 12px 25px;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3);
+            color: #ffffff;
+            margin-bottom: 10px;
         }
 
-        .close-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(76, 175, 80, 0.4);
+        .change-text {
+            color: #667eea;
+            font-size: 1rem;
+        }
+
+        .instruction {
+            background: #3861fb;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            margin: 20px 0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-areas: 
+                    "sidebar"
+                    "rates"  
+                    "chart";
+            }
         }
 
         @media (max-width: 768px) {
-            .game-container {
-                padding: 15px;
-            }
-            
-            .main-content {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .roulette-wheel {
-                width: 200px;
-                height: 200px;
-            }
-            
-            .roulette-center {
-                width: 60px;
-                height: 60px;
-                font-size: 1.5rem;
-            }
-            
-            .roulette-container {
-                height: 280px;
-            }
-            
-            .chart-container {
-                height: 280px;
-            }
-            
-            .chart {
-                height: 230px;
-            }
-            
-            .stats {
-                flex-direction: column;
-                gap: 10px;
+            .stats-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <div class="game-header">
-            <h1>💰 今里コイン価格変動ルーレット 💰</h1>
-            <div class="subtitle">運命のルーレットで今里コインの価格が決まる！</div>
-            
-            <div class="current-price" id="currentPrice">
-                現在価格: 10本分
-            </div>
-        </div>
-        
-        <div class="game-body">
-            <div class="main-content">
-                <div class="roulette-section">
-                    <div class="roulette-container">
-                        <div class="roulette-wheel" id="roulette">
-                            <div class="roulette-center">💰</div>
-                        </div>
-                        <button class="spin-button" id="spinButton" onclick="spinRoulette()">
-                            運命のルーレットを回す！
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="chart-section">
-                    <div class="chart-container">
-                        <div class="chart-title">📈 今里コイン価格チャート</div>
-                        <div class="chart" id="chart">
-                            <div class="chart-y-axis" id="chartYAxis"></div>
-                            <div class="chart-area">
-                                <svg width="100%" height="100%" id="chartSvg">
-                                    <defs>
-                                        <pattern id="grid" width="40" height="25" patternUnits="userSpaceOnUse">
-                                            <path d="M 40 0 L 0 0 0 25" fill="none" stroke="#e0e0e0" stroke-width="1"/>
-                                        </pattern>
-                                    </defs>
-                                    <rect width="100%" height="100%" fill="url(#grid)" class="chart-grid"/>
-                                    <line id="startLine" class="start-line"/>
-                                    <polyline id="chartLine" points="" class="chart-line"/>
-                                    <g id="chartDots"></g>
-                                </svg>
-                            </div>
-                        </div>
+    <div class="container">
+        <!-- Sidebar (1-10) -->
+        <div class="sidebar">
+            <!-- 1. Coin Header -->
+            <div class="sidebar-section">
+                <div class="coin-header">
+                    <div class="coin-logo">W</div>
+                    <div class="coin-info">
+                        <h1>今里コイン</h1>
+                        <div class="coin-symbol">WATARU</div>
                     </div>
                 </div>
             </div>
-            
-            <div class="stats">
-                <div class="stat-item">
-                    <div class="stat-value" id="spinCount">0</div>
-                    <div class="stat-label">回転数</div>
+
+            <!-- 2. Price Change -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">変動率</div>
+                <div class="price-change" id="priceChange">+0%</div>
+            </div>
+
+            <!-- 3-6. Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-small-label">最高価格</div>
+                    <div class="stat-big-value" id="maxPrice">1.0<span style="font-size: 12px; color: #8a93a4; margin-left: 4px;">お菓子(小)</span></div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="maxPrice">10</div>
-                    <div class="stat-label">最高価格</div>
+                <div class="stat-card">
+                    <div class="stat-small-label">最低価格</div>
+                    <div class="stat-big-value" id="minPrice">1.0<span style="font-size: 12px; color: #8a93a4; margin-left: 4px;">お菓子(小)</span></div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="minPrice">10</div>
-                    <div class="stat-label">最低価格</div>
+                <div class="stat-card">
+                    <div class="stat-small-label">ルーレット回数</div>
+                    <div class="stat-big-value" id="spinCount">0<span style="font-size: 12px; color: #8a93a4; margin-left: 4px;">回</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-small-label">総発行枚数</div>
+                    <div class="stat-big-value">100<span style="font-size: 12px; color: #8a93a4; margin-left: 4px;">WATARU</span></div>
+                </div>
+            </div>
+
+            <!-- 7. Website -->
+            <div class="sidebar-section">
+                <div class="info-item">
+                    <div class="info-left">
+                        <span>Website</span>
+                    </div>
+                    <div class="info-right">
+                        <a href="#" class="info-link">Website</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. Socials -->
+            <div class="sidebar-section">
+                <div class="info-item">
+                    <div class="info-left">
+                        <span>Socials</span>
+                    </div>
+                    <div class="info-right">
+                        <a href="#" class="info-link"><i class="fab fa-youtube" style="color: #ff0000; font-size: 16px;"></i></a>
+                        <a href="#" class="info-link"><i class="fab fa-twitter" style="color: #1da1f2; font-size: 16px;"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 9. Rating -->
+            <div class="sidebar-section">
+                <div class="info-item">
+                    <div class="info-left">
+                        <span>Rating</span>
+                    </div>
+                    <div class="info-right">
+                        <div class="rating">
+                            <span style="color: #1e1932; margin-right: 8px; font-weight: 600;">5.0</span>
+                            <i class="fas fa-star" style="color: #fbbf24;"></i>
+                            <i class="fas fa-star" style="color: #fbbf24;"></i>
+                            <i class="fas fa-star" style="color: #fbbf24;"></i>
+                            <i class="fas fa-star" style="color: #fbbf24;"></i>
+                            <i class="fas fa-star" style="color: #fbbf24;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 10. Explorers -->
+            <div class="sidebar-section">
+                <div class="info-item">
+                    <div class="info-left">
+                        <span>Explorers</span>
+                    </div>
+                    <div class="info-right">
+                        <a href="https://www.ntt.com" class="info-link">blockchain.info</a>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="modal" id="modal">
-            <div class="modal-content">
-                <span class="modal-emoji" id="modalEmoji">💰</span>
-                <div class="modal-text" id="modalText">結果が表示されます</div>
-                <div class="price-change" id="priceChange">価格変動</div>
-                <button class="close-button" onclick="closeModal()">チャートを確認する</button>
+        <!-- 13. Exchange Rates (Top Right) -->
+        <div class="rates-section">
+            <div class="sidebar-title">今里コインレート</div>
+            <div class="current-price" id="currentPrice">1.0お菓子(小)</div>
+            <ul class="rate-list">
+                <li class="rate-item">
+                    <span class="rate-name">1 WATARU</span>
+                    <span class="rate-value" id="smallRate">お菓子(小) 1個</span>
+                </li>
+                <li class="rate-item">
+                    <span class="rate-name">2 WATARU</span>
+                    <span class="rate-value" id="mediumRate">お菓子(中) 1個</span>
+                </li>
+                <li class="rate-item">
+                    <span class="rate-name">3 WATARU</span>
+                    <span class="rate-value" id="largeRate">お菓子(大) 1個</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 12. Chart (Bottom Right) -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title">価格チャート</div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <div class="chart">
+                        <canvas id="priceChart" width="800" height="400"></canvas>
+                    </div>
+                    <div class="instruction">Enterキーを押してルーレットを開始！</div>
+                </div>
             </div>
         </div>
     </div>
-    
+
+    <!-- Roulette Popup -->
+    <div class="popup" id="roulettePopup">
+        <div class="roulette-container">
+            <h2>💰 運命のルーレット 💰</h2>
+            <div class="roulette" id="roulette">
+                <div class="roulette-center">💰</div>
+            </div>
+            <div class="result-image" id="resultImage">🎉</div>
+            <div class="instruction" id="rouletteInstruction">もう一度Enterキーを押してルーレットを回す！</div>
+            <div class="result-display" id="resultDisplay" style="display: none;"></div>
+        </div>
+    </div>
+
     <script>
+        let currentValue = 1; // お菓子(小)の個数ベース
+        let priceHistory = [1];
+        let maxValue = 1;
+        let minValue = 1;
+        let spinCount = 0;
+        let isRouletteOpen = false;
+        let isSpinning = false;
+
         const events = [
-            { emoji: '🎉', text: '今里地域のお祭りが大成功！観光客が急増した！', change: +2 },
-            { emoji: '🏪', text: '今里商店街に新しいお店がオープン！経済が活性化した！', change: +1 },
-            { emoji: '🌟', text: '今里コインがテレビで紹介された！知名度アップ！', change: +2 },
-            { emoji: '🏆', text: '今里のチームが全国大会で優勝！地域の誇りが高まった！', change: +2 },
-            { emoji: '☀️', text: '今里で晴天が続き、農作物が豊作！経済効果抜群！', change: +1 },
-            { emoji: '💼', text: '今里に大企業が進出決定！雇用が増加した！', change: +2 },
-            { emoji: '🎪', text: '今里でイベントが開催！多くの人が訪れた！', change: +1 },
-            { emoji: '🌧️', text: '今里で悪天候が続いた...少し経済活動が停滞した', change: -1 },
-            { emoji: '😅', text: '今里コインの取引システムに軽微な不具合が発生', change: -1 },
-            { emoji: '💸', text: '投資家が一時的に様子見...市場が少し冷え込んだ', change: -3 },
-            { emoji: '🔄', text: '今里コインの価格が安定している', change: 0 },
-            { emoji: '📈', text: '今里コインの取引量が増加！流動性が向上した！', change: +1 },
-            { emoji: '🎁', text: '今里コイン記念キャンペーン開催！注目度アップ！', change: +1 },
-            { emoji: '🌈', text: '今里で虹が見えた！幸運の前兆かも？', change: +1 },
-            { emoji: '🚀', text: '今里コインの技術革新が話題に！未来への期待が高まった！', change: +1 },
-            { emoji: '📰', text: '今里コインが新聞に掲載された！', change: +1 },
-            { emoji: '🏭', text: '今里の工場が増産体制に！経済が活発になった！', change: +1 },
-            { emoji: '🛍️', text: '今里商店街でセール開催！買い物客が増加！', change: 0 },
-            { emoji: '🌪️', text: '今里で台風の影響...一時的に活動が停滞', change: -2 },
-            { emoji: '📉', text: '全国的な景気悪化の影響を受けた...', change: -1 },
-            { emoji: '🌊', text: '今里で水害が発生...復旧に時間がかかりそう', change: -3 },
-            { emoji: '😰', text: '今里コインの信頼性に疑問視する声が...', change: -2 },
-            { emoji: '🔧', text: '今里コインのメンテナンス作業が長引いた', change: -1 },
-            { emoji: '💔', text: '今里の主要企業が撤退を発表...', change: -2 }
+            { text: "大当たり！お菓子工場を発見！", change: 3, color: "#00d4aa" },
+            { text: "ラッキー！お菓子セールが開催中！", change: 2, color: "#00d4aa" },
+            { text: "お菓子の需要が増加しています", change: 1, color: "#00d4aa" },
+            { text: "平和な一日でした", change: 0, color: "#8a93a4" },
+            { text: "お菓子の原料がやや高騰...", change: -1, color: "#ea3943" },
+            { text: "お菓子工場でトラブル発生", change: -2, color: "#ea3943" },
+            { text: "大不況！お菓子が貴重品に！", change: -3, color: "#ea3943" },
+            { text: "奇跡！お菓子の雨が降った！", change: 5, color: "#00d4aa" }
         ];
 
-        let currentPrice = 10;
-        let priceHistory = [10];
-        let maxPrice = 10;
-        let minPrice = 10;
-        let isSpinning = false;
-        let gameCount = 0;
+        function updateDisplay() {
+            // 現在価格表示
+            document.getElementById('currentPrice').textContent = `${currentValue.toFixed(1)}お菓子(小)`;
+            
+            // 変動率計算
+            const initialValue = 1;
+            const changePercent = ((currentValue - initialValue) / initialValue * 100).toFixed(1);
+            const changeElement = document.getElementById('priceChange');
+            changeElement.textContent = `${changePercent >= 0 ? '+' : ''}${changePercent}%`;
+            changeElement.className = changePercent >= 0 ? 'price-change' : 'price-change negative';
 
-        function updatePrice(change) {
-            currentPrice = Math.max(1, currentPrice + change);
-            priceHistory.push(currentPrice);
+            // 統計更新（単位を含める）
+            document.getElementById('maxPrice').innerHTML = `${maxValue.toFixed(1)}<span style="font-size: 12px; color: #8a93a4; margin-left: 4px;">お菓子(小)</span>`;
+            document.getElementById('minPrice').innerHTML = `${minValue.toFixed(1)}<span style="font-size: 12px; color: #8a93a4; margin-left: 4px;">お菓子(小)</span>`;
+            document.getElementById('spinCount').innerHTML = `${spinCount}<span style="font-size: 12px; color: #8a93a4; margin-left: 4px;">回</span>`;
 
-            maxPrice = Math.max(maxPrice, currentPrice);
-            minPrice = Math.min(minPrice, currentPrice);
+            // 交換レート更新
+            document.getElementById('smallRate').textContent = `お菓子(小) ${Math.max(1, Math.round(currentValue))}個`;
+            document.getElementById('mediumRate').textContent = `お菓子(中) ${Math.max(1, Math.round(currentValue * 0.5))}個`;
+            document.getElementById('largeRate').textContent = `お菓子(大) ${Math.max(1, Math.round(currentValue * 0.33))}個`;
 
-            document.getElementById('currentPrice').textContent = `現在価格: ${currentPrice}本分`;
-
-            document.getElementById('maxPrice').textContent = maxPrice;
-            document.getElementById('minPrice').textContent = minPrice;
-
-            updateChart();
+            drawChart();
         }
 
-        function updateChart() {
-            const chartLine = document.getElementById('chartLine');
-            const chartDots = document.getElementById('chartDots');
-            const chartYAxis = document.getElementById('chartYAxis');
-            const startLine = document.getElementById('startLine');
-            const chartArea = document.querySelector('.chart-area');
-            const chartWidth = chartArea.clientWidth;
-            const chartHeight = 300;
-            const maxPoints = 12;
+        function drawChart() {
+            const canvas = document.getElementById('priceChart');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
 
-            const displayHistory = priceHistory.slice(-maxPoints);
+            ctx.clearRect(0, 0, width, height);
 
-            const maxPriceInChart = Math.max(...displayHistory, 10);
-            const minPriceInChart = Math.min(...displayHistory, 10);
-            const centerPrice = 10;
-            const range = Math.max(maxPriceInChart - centerPrice, centerPrice - minPriceInChart, 3);
-            const yMax = centerPrice + range;
-            const yMin = centerPrice - range;
+            // チャートの描画エリア（大枠の98%まで使用）
+            const margin = 5; // マージンを最小限に
+            const chartWidth = width - margin * 2;
+            const chartHeight = height - margin * 2;
 
-            chartYAxis.innerHTML = '';
-            const ySteps = 8;
-            for (let i = 0; i <= ySteps; i++) {
-                const value = yMax - (i * (yMax - yMin) / ySteps);
-                const div = document.createElement('div');
-                div.style.fontSize = '11px';
-                div.style.textAlign = 'center';
-                div.style.lineHeight = '1';
-                if (Math.abs(value - 10) < 0.1) {
-                    div.style.fontWeight = 'bold';
-                    div.style.color = '#ff6b6b';
-                }
-                div.textContent = Math.round(value);
-                chartYAxis.appendChild(div);
+            // Y軸の設定
+            const minScale = 0.5;
+            const maxScale = 10;
+            const values = [0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+            
+            // グリッド線を描画（大枠の内側）
+            ctx.strokeStyle = '#eff2f5';
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i < values.length; i++) {
+                const value = values[i];
+                // 正規化: 0.5=0, 10=1 の範囲で計算
+                const normalizedValue = (value - minScale) / (maxScale - minScale);
+                const y = margin + chartHeight - (normalizedValue * chartHeight);
+                
+                ctx.beginPath();
+                ctx.moveTo(margin, y);
+                ctx.lineTo(margin + chartWidth, y);
+                ctx.stroke();
             }
 
-            const startY = ((yMax - centerPrice) / (yMax - yMin)) * (chartHeight - 40) + 20;
-            startLine.setAttribute('x1', 0);
-            startLine.setAttribute('y1', startY);
-            startLine.setAttribute('x2', chartWidth);
-            startLine.setAttribute('y2', startY);
+            // 価格線を描画（大枠の内側）
+            if (priceHistory.length > 0) {
+                const initialValue = 1;
+                const currentPrice = priceHistory[priceHistory.length - 1];
+                const lineColor = currentPrice >= initialValue ? '#00d4aa' : '#ea3943';
+                
+                // 価格線
+                ctx.strokeStyle = lineColor;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
 
-            const points = displayHistory.map((price, index) => {
-                const x = (index / Math.max(displayHistory.length - 1, 1)) * (chartWidth - 40) + 20;
-                const y = ((yMax - price) / (yMax - yMin)) * (chartHeight - 40) + 20;
-                return { x, y, price };
-            });
+                for (let i = 0; i < priceHistory.length; i++) {
+                    let x;
+                    if (priceHistory.length === 1) {
+                        // 1つのポイントの場合は中央に配置
+                        x = margin + chartWidth * 0.8;
+                    } else {
+                        // 複数のポイントの場合は左端から右端まで均等配置
+                        x = margin + (chartWidth * i) / (priceHistory.length - 1);
+                    }
+                    const normalizedPrice = Math.max(0, Math.min(1, (priceHistory[i] - minScale) / (maxScale - minScale)));
+                    const y = margin + chartHeight - (normalizedPrice * chartHeight);
 
-            const linePoints = points.map(p => `${p.x},${p.y}`).join(' ');
-            chartLine.setAttribute('points', linePoints);
-
-            chartDots.innerHTML = '';
-            points.forEach((point, index) => {
-                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                circle.setAttribute('cx', point.x);
-                circle.setAttribute('cy', point.y);
-                circle.setAttribute('r', index === points.length - 1 ? 6 : 4);
-                circle.setAttribute('class', 'chart-dot');
-                if (index === points.length - 1) {
-                    circle.setAttribute('fill', '#ff6b6b');
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
                 }
-                chartDots.appendChild(circle);
-            });
+                ctx.stroke();
+
+                // 現在値のポイント
+                if (priceHistory.length >= 1) {
+                    let lastX;
+                    if (priceHistory.length === 1) {
+                        lastX = margin + chartWidth * 0.8;
+                    } else {
+                        lastX = margin + chartWidth; // 最後のポイントは右端
+                    }
+                    const lastNormalizedPrice = Math.max(0, Math.min(1, (priceHistory[priceHistory.length - 1] - minScale) / (maxScale - minScale)));
+                    const lastY = margin + chartHeight - (lastNormalizedPrice * chartHeight);
+
+                    ctx.fillStyle = lineColor;
+                    ctx.beginPath();
+                    ctx.arc(lastX, lastY, 6, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+
+                // グラデーション効果
+                const gradient = ctx.createLinearGradient(0, margin, 0, margin + chartHeight);
+                const gradientColor = currentPrice >= initialValue ? 
+                    'rgba(0, 212, 170, 0.1)' : 'rgba(234, 57, 67, 0.1)';
+                gradient.addColorStop(0, gradientColor);
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0.0)');
+
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.moveTo(margin, margin + chartHeight);
+                for (let i = 0; i < priceHistory.length; i++) {
+                    let x;
+                    if (priceHistory.length === 1) {
+                        x = margin + chartWidth * 0.8;
+                    } else {
+                        x = margin + (chartWidth * i) / (priceHistory.length - 1);
+                    }
+                    const normalizedPrice = Math.max(0, Math.min(1, (priceHistory[i] - minScale) / (maxScale - minScale)));
+                    const y = margin + chartHeight - (normalizedPrice * chartHeight);
+                    ctx.lineTo(x, y);
+                }
+                // 最後のポイントから底辺へ
+                let lastX;
+                if (priceHistory.length === 1) {
+                    lastX = margin + chartWidth * 0.8;
+                } else {
+                    lastX = margin + chartWidth;
+                }
+                ctx.lineTo(lastX, margin + chartHeight);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            // Y軸の数值ラベル（チャートの境界線の外側に絶対配置）
+            const chartElement = canvas.parentElement; // .chart
+            const chartWrapper = chartElement.parentElement; // .chart-wrapper
+            
+            // 既存のラベルを削除
+            const existingLabels = chartWrapper.querySelectorAll('.y-axis-label');
+            existingLabels.forEach(label => label.remove());
+            
+            // 新しいラベルを作成（chart-wrapper内、チャートの外側に配置）
+            for (let i = 0; i < values.length; i++) {
+                const value = values[i];
+                // グリッド線と同じ位置計算
+                const normalizedValue = (value - minScale) / (maxScale - minScale);
+                const y = margin + chartHeight - (normalizedValue * chartHeight);
+                
+                const label = document.createElement('div');
+                label.className = 'y-axis-label';
+                label.textContent = value.toString();
+                label.style.position = 'absolute';
+                label.style.right = '-40px';
+                label.style.top = y + 'px';
+                label.style.fontSize = '12px';
+                label.style.color = '#8a93a4';
+                label.style.pointerEvents = 'none';
+                label.style.transform = 'translateY(-50%)';
+                
+                chartWrapper.appendChild(label);
+            }
         }
 
         function spinRoulette() {
             if (isSpinning) return;
-
             isSpinning = true;
-            const button = document.getElementById('spinButton');
+            spinCount++;
+
             const roulette = document.getElementById('roulette');
+            const resultImage = document.getElementById('resultImage');
+            const randomEvent = events[Math.floor(Math.random() * events.length)];
+            const spins = 5 + Math.random() * 5;
+            const finalRotation = spins * 360 + (Math.random() * 360);
 
-            button.disabled = true;
-            button.textContent = '運命を決定中...';
-
-            roulette.classList.add('spinning');
+            // ②：ルーレット回転中
+            const spins = 6; // 6回転
+            const finalRotation = spins * 360 + (Math.random() * 360);
+            roulette.style.transform = `rotate(${finalRotation}deg)`;
+            roulette.style.transition = 'transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
 
             setTimeout(() => {
-                gameCount++;
-                document.getElementById('spinCount').textContent = gameCount;
+                // ③：結果表示 - ルーレットを隠して結果画像を表示
+                roulette.style.display = 'none';
+                resultImage.style.display = 'flex';
+                document.getElementById('rouletteInstruction').style.display = 'none'; // インストラクションを隠す
+                
+                // 今里コインのシンボル（W）を表示
+                resultImage.textContent = 'W';
 
-                const randomEvent = events[Math.floor(Math.random() * events.length)];
+                // 価格変動（+個数で計算）
+                currentValue = Math.max(0.5, Math.min(10, currentValue + randomEvent.change));
+                priceHistory.push(currentValue);
+                
+                // 最高・最低価格更新
+                maxValue = Math.max(maxValue, currentValue);
+                minValue = Math.min(minValue, currentValue);
 
-                updatePrice(randomEvent.change);
+                const resultDisplay = document.getElementById('resultDisplay');
+                resultDisplay.style.background = '#ffffff';
+                resultDisplay.style.color = '#1e1932';
+                resultDisplay.style.display = 'block'; // 結果表示時のみ表示
+                resultDisplay.innerHTML = `
+                    <div class="event-text" style="color: ${randomEvent.color}">
+                        ${randomEvent.text}
+                    </div>
+                    <div class="change-text">
+                        価格変動: ${randomEvent.change >= 0 ? '+' : ''}${randomEvent.change}個 → 現在値: ${currentValue.toFixed(1)}個
+                    </div>
+                `;
 
-                document.getElementById('modalEmoji').textContent = randomEvent.emoji;
-                document.getElementById('modalText').textContent = randomEvent.text;
+                updateDisplay();
 
-                const priceChangeEl = document.getElementById('priceChange');
-                const changeText = randomEvent.change > 0 ? `+${randomEvent.change}本分` : 
-                                    randomEvent.change < 0 ? `${randomEvent.change}本分` : '変動なし';
-                const changeClass = randomEvent.change > 0 ? 'price-up' : 
-                                    randomEvent.change < 0 ? 'price-down' : 'price-stable';
-                
-                priceChangeEl.textContent = `価格変動: ${changeText}`;
-                priceChangeEl.className = `price-change ${changeClass}`;
-                
-                const modal = document.getElementById('modal');
-                modal.classList.add('show');
-                
-                roulette.classList.remove('spinning');
-                
-                button.disabled = false;
-                button.textContent = '運命のルーレットを回す！';
-                
-                isSpinning = false;
-            }, 2500);
+                setTimeout(() => {
+                    // 元の状態に戻す
+                    document.getElementById('roulettePopup').style.display = 'none';
+                    roulette.style.display = 'block';
+                    resultImage.style.display = 'none';
+                    resultDisplay.style.display = 'none'; // 結果表示を隠す
+                    document.getElementById('rouletteInstruction').style.display = 'block'; // インストラクションを表示
+                    isRouletteOpen = false;
+                    isSpinning = false;
+                    roulette.style.transform = 'rotate(0deg)';
+                    resultDisplay.innerHTML = '';
+                    document.getElementById('rouletteInstruction').textContent = 'もう一度Enterキーを押してルーレットを回す！';
+                }, 3000);
+            }, 3000);
         }
 
-        function closeModal() {
-            const modal = document.getElementById('modal');
-            modal.classList.remove('show');
-        }
-
-        document.getElementById('modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                if (!isRouletteOpen) {
+                    document.getElementById('roulettePopup').style.display = 'flex';
+                    isRouletteOpen = true;
+                } else if (!isSpinning) {
+                    document.getElementById('rouletteInstruction').textContent = 'ルーレットが回転中...';
+                    spinRoulette();
+                }
             }
         });
 
-        setTimeout(updateChart, 100);
+        // 初期表示
+        updateDisplay();
     </script>
 </body>
 </html>
