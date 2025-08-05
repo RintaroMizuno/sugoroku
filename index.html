@@ -774,6 +774,49 @@
                     }
                     const normalizedPrice = Math.max(0, Math.min(1, (priceHistory[i] - minScale) / (maxScale - minScale)));
                     const y = margin + chartHeight - (normalizedPrice * chartHeight);
+
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.stroke();
+
+                if (priceHistory.length >= 1) {
+                    let lastX;
+                    if (priceHistory.length === 1) {
+                        lastX = margin + chartWidth * 0.8;
+                    } else {
+                        lastX = margin + chartWidth;
+                    }
+                    const lastNormalizedPrice = Math.max(0, Math.min(1, (priceHistory[priceHistory.length - 1] - minScale) / (maxScale - minScale)));
+                    const lastY = margin + chartHeight - (lastNormalizedPrice * chartHeight);
+
+                    ctx.fillStyle = lineColor;
+                    ctx.beginPath();
+                    ctx.arc(lastX, lastY, 6, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+
+                const gradient = ctx.createLinearGradient(0, margin, 0, margin + chartHeight);
+                const gradientColor = currentPrice >= initialValue ? 
+                    'rgba(0, 212, 170, 0.1)' : 'rgba(234, 57, 67, 0.1)';
+                gradient.addColorStop(0, gradientColor);
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0.0)');
+
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.moveTo(margin, margin + chartHeight);
+                for (let i = 0; i < priceHistory.length; i++) {
+                    let x;
+                    if (priceHistory.length === 1) {
+                        x = margin + chartWidth * 0.8;
+                    } else {
+                        x = margin + (chartWidth * i) / (priceHistory.length - 1);
+                    }
+                    const normalizedPrice = Math.max(0, Math.min(1, (priceHistory[i] - minScale) / (maxScale - minScale)));
+                    const y = margin + chartHeight - (normalizedPrice * chartHeight);
                     ctx.lineTo(x, y);
                 }
                 let lastX;
@@ -881,11 +924,15 @@
         }
 
         document.addEventListener('keydown', function(event) {
+            console.log('Key pressed:', event.key);
             if (event.key === 'Enter') {
+                console.log('Enter key detected. isRouletteOpen:', isRouletteOpen, 'isSpinning:', isSpinning);
                 if (!isRouletteOpen) {
+                    console.log('Opening roulette popup');
                     document.getElementById('roulettePopup').style.display = 'flex';
                     isRouletteOpen = true;
                 } else if (!isSpinning) {
+                    console.log('Starting roulette spin');
                     document.getElementById('rouletteInstruction').textContent = 'ルーレットが回転中...';
                     spinRoulette();
                 }
@@ -896,47 +943,4 @@
         updateDisplay();
     </script>
 </body>
-</html> * chartHeight);
-
-                    if (i === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
-                }
-                ctx.stroke();
-
-                if (priceHistory.length >= 1) {
-                    let lastX;
-                    if (priceHistory.length === 1) {
-                        lastX = margin + chartWidth * 0.8;
-                    } else {
-                        lastX = margin + chartWidth;
-                    }
-                    const lastNormalizedPrice = Math.max(0, Math.min(1, (priceHistory[priceHistory.length - 1] - minScale) / (maxScale - minScale)));
-                    const lastY = margin + chartHeight - (lastNormalizedPrice * chartHeight);
-
-                    ctx.fillStyle = lineColor;
-                    ctx.beginPath();
-                    ctx.arc(lastX, lastY, 6, 0, 2 * Math.PI);
-                    ctx.fill();
-                }
-
-                const gradient = ctx.createLinearGradient(0, margin, 0, margin + chartHeight);
-                const gradientColor = currentPrice >= initialValue ? 
-                    'rgba(0, 212, 170, 0.1)' : 'rgba(234, 57, 67, 0.1)';
-                gradient.addColorStop(0, gradientColor);
-                gradient.addColorStop(1, 'rgba(0, 0, 0, 0.0)');
-
-                ctx.fillStyle = gradient;
-                ctx.beginPath();
-                ctx.moveTo(margin, margin + chartHeight);
-                for (let i = 0; i < priceHistory.length; i++) {
-                    let x;
-                    if (priceHistory.length === 1) {
-                        x = margin + chartWidth * 0.8;
-                    } else {
-                        x = margin + (chartWidth * i) / (priceHistory.length - 1);
-                    }
-                    const normalizedPrice = Math.max(0, Math.min(1, (priceHistory[i] - minScale) / (maxScale - minScale)));
-                    const y = margin + chartHeight - (normalizedPrice
+</html>
