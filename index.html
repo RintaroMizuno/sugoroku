@@ -246,7 +246,7 @@
 
         .chart-wrapper {
             position: relative;
-            margin-right: 50px; /* Y軸数字用の外側スペース */
+            margin-right: 50px;
         }
 
         .chart-header {
@@ -269,7 +269,7 @@
             border-radius: 8px;
             position: relative;
             border: 1px solid #eff2f5;
-            overflow: visible; /* 枠外の要素も表示 */
+            overflow: visible;
         }
 
         .rating {
@@ -308,14 +308,25 @@
             margin-bottom: 20px;
         }
 
+        /* Improved Roulette */
+        .roulette-wheel {
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .roulette {
             width: 300px;
             height: 300px;
             border: 10px solid #667eea;
             border-radius: 50%;
-            margin: 20px auto;
             position: relative;
-            transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            overflow: hidden;
+            transition: transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         .roulette-section {
@@ -323,29 +334,101 @@
             width: 50%;
             height: 50%;
             transform-origin: 100% 100%;
-            clip-path: polygon(0% 100%, 100% 100%, 100% 0%);
         }
 
-        .roulette-section:nth-child(1) { background: #e74c3c; transform: rotate(0deg); }
-        .roulette-section:nth-child(2) { background: #16a085; transform: rotate(45deg); }
-        .roulette-section:nth-child(3) { background: #3498db; transform: rotate(90deg); }
-        .roulette-section:nth-child(4) { background: #2ecc71; transform: rotate(135deg); }
-        .roulette-section:nth-child(5) { background: #f39c12; transform: rotate(180deg); }
-        .roulette-section:nth-child(6) { background: #9b59b6; transform: rotate(225deg); }
-        .roulette-section:nth-child(7) { background: #34495e; transform: rotate(270deg); }
-        .roulette-section:nth-child(8) { background: #e67e22; transform: rotate(315deg); }
+        .roulette-section:nth-child(1) { 
+            background: #e74c3c; 
+            transform: rotate(0deg);
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+        }
+        .roulette-section:nth-child(2) { 
+            background: #16a085; 
+            transform: rotate(45deg);
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+        }
+        .roulette-section:nth-child(3) { 
+            background: #3498db; 
+            transform: rotate(90deg);
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+        }
+        .roulette-section:nth-child(4) { 
+            background: #2ecc71; 
+            transform: rotate(135deg);
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+        }
+        .roulette-section:nth-child(5) { 
+            background: #f39c12; 
+            transform: rotate(180deg);
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+        }
+        .roulette-section:nth-child(6) { 
+            background: #9b59b6; 
+            transform: rotate(225deg);
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+        }
+        .roulette-section:nth-child(7) { 
+            background: #34495e; 
+            transform: rotate(270deg);
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+        }
+        .roulette-section:nth-child(8) { 
+            background: #e67e22; 
+            transform: rotate(315deg);
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+        }
+
+        .roulette-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
 
         .roulette-pointer {
             position: absolute;
-            top: -5px;
+            top: -20px;
             left: 50%;
             transform: translateX(-50%);
             width: 0;
             height: 0;
             border-left: 15px solid transparent;
             border-right: 15px solid transparent;
-            border-top: 30px solid #ffffff;
-            z-index: 10;
+            border-top: 30px solid #ff0000;
+            z-index: 20;
+        }
+
+        .roulette.spinning {
+            transform: rotate(1800deg);
+        }
+
+        /* Result Image Display */
+        .result-image {
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafd;
+            border-radius: 20px;
+            padding: 20px;
+        }
+
+        .result-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 10px;
         }
 
         .result-display {
@@ -540,11 +623,22 @@
     <div class="popup" id="roulettePopup">
         <div class="roulette-container">
             <h2>💰 運命のルーレット 💰</h2>
-            <div class="roulette" id="roulette">
-                <div class="roulette-center">💰</div>
+            <div class="roulette-wheel" id="rouletteWheel">
+                <div class="roulette-pointer"></div>
+                <div class="roulette" id="roulette">
+                    <div class="roulette-section"></div>
+                    <div class="roulette-section"></div>
+                    <div class="roulette-section"></div>
+                    <div class="roulette-section"></div>
+                    <div class="roulette-section"></div>
+                    <div class="roulette-section"></div>
+                    <div class="roulette-section"></div>
+                    <div class="roulette-section"></div>
+                    <div class="roulette-center">💰</div>
+                </div>
             </div>
             <div class="result-image" id="resultImage" style="display: none;">
-                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiByeD0iMTAwIiBmaWxsPSIjRkZENzAwIi8+CjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iNzAiIGZpbGw9IiNGRkYiLz4KPHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeD0iNzAiIHk9IjcwIj4KPHA+VzwvcD4KPC9zdmc+Cjx0ZXh0IHg9IjEwMCIgeT0iMTEwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjM2IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzMzMzMzMyIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIj5XPC90ZXh0Pgo8L3N2Zz4=" alt="今里コイン" />
+                <img id="resultImg" src="" alt="結果画像" />
             </div>
             <div class="instruction" id="rouletteInstruction">もう一度Enterキーを押してルーレットを回す！</div>
             <div class="result-display" id="resultDisplay" style="display: none;"></div>
@@ -552,7 +646,7 @@
     </div>
 
     <script>
-        let currentValue = 1; // お菓子(小)の個数ベース
+        let currentValue = 1;
         let priceHistory = [1];
         let maxValue = 1;
         let minValue = 1;
@@ -560,34 +654,71 @@
         let isRouletteOpen = false;
         let isSpinning = false;
 
+        // イベント設定 - imageUrlを簡単に設定できるように配列化
         const events = [
-            { text: "大当たり！お菓子工場を発見！", change: 3, color: "#00d4aa" },
-            { text: "ラッキー！お菓子セールが開催中！", change: 2, color: "#00d4aa" },
-            { text: "お菓子の需要が増加しています", change: 1, color: "#00d4aa" },
-            { text: "平和な一日でした", change: 0, color: "#8a93a4" },
-            { text: "お菓子の原料がやや高騰...", change: -1, color: "#ea3943" },
-            { text: "お菓子工場でトラブル発生", change: -2, color: "#ea3943" },
-            { text: "大不況！お菓子が貴重品に！", change: -3, color: "#ea3943" },
-            { text: "奇跡！お菓子の雨が降った！", change: 5, color: "#00d4aa" }
+            { 
+                text: "大当たり！お菓子工場を発見！", 
+                change: 3, 
+                color: "#00d4aa",
+                imageUrl: "" // ここに画像URLを設定してください
+            },
+            { 
+                text: "ラッキー！お菓子セールが開催中！", 
+                change: 2, 
+                color: "#00d4aa",
+                imageUrl: "" // ここに画像URLを設定してください
+            },
+            { 
+                text: "お菓子の需要が増加しています", 
+                change: 1, 
+                color: "#00d4aa",
+                imageUrl: "" // ここに画像URLを設定してください
+            },
+            { 
+                text: "平和な一日でした", 
+                change: 0, 
+                color: "#8a93a4",
+                imageUrl: "" // ここに画像URLを設定してください
+            },
+            { 
+                text: "お菓子の原料がやや高騰...", 
+                change: -1, 
+                color: "#ea3943",
+                imageUrl: "" // ここに画像URLを設定してください
+            },
+            { 
+                text: "お菓子工場でトラブル発生", 
+                change: -2, 
+                color: "#ea3943",
+                imageUrl: "" // ここに画像URLを設定してください
+            },
+            { 
+                text: "大不況！お菓子が貴重品に！", 
+                change: -3, 
+                color: "#ea3943",
+                imageUrl: "" // ここに画像URLを設定してください
+            },
+            { 
+                text: "奇跡！お菓子の雨が降った！", 
+                change: 5, 
+                color: "#00d4aa",
+                imageUrl: "" // ここに画像URLを設定してください
+            }
         ];
 
         function updateDisplay() {
-            // 現在価格表示
             document.getElementById('currentPrice').textContent = `${currentValue.toFixed(1)}お菓子(小)`;
             
-            // 変動率計算
             const initialValue = 1;
             const changePercent = ((currentValue - initialValue) / initialValue * 100).toFixed(1);
             const changeElement = document.getElementById('priceChange');
             changeElement.textContent = `${changePercent >= 0 ? '+' : ''}${changePercent}%`;
             changeElement.className = changePercent >= 0 ? 'price-change' : 'price-change negative';
 
-            // 統計更新（単位を含める）
             document.getElementById('maxPrice').innerHTML = `${maxValue.toFixed(1)}<span style="font-size: 12px; color: #8a93a4; margin-left: 4px;">お菓子(小)</span>`;
             document.getElementById('minPrice').innerHTML = `${minValue.toFixed(1)}<span style="font-size: 12px; color: #8a93a4; margin-left: 4px;">お菓子(小)</span>`;
             document.getElementById('spinCount').innerHTML = `${spinCount}<span style="font-size: 12px; color: #8a93a4; margin-left: 4px;">回</span>`;
 
-            // 交換レート更新
             document.getElementById('smallRate').textContent = `お菓子(小) ${Math.max(1, Math.round(currentValue))}個`;
             document.getElementById('mediumRate').textContent = `お菓子(中) ${Math.max(1, Math.round(currentValue * 0.5))}個`;
             document.getElementById('largeRate').textContent = `お菓子(大) ${Math.max(1, Math.round(currentValue * 0.33))}個`;
@@ -603,23 +734,19 @@
 
             ctx.clearRect(0, 0, width, height);
 
-            // チャートの描画エリア（大枠の98%まで使用）
-            const margin = 5; // マージンを最小限に
+            const margin = 5;
             const chartWidth = width - margin * 2;
             const chartHeight = height - margin * 2;
 
-            // Y軸の設定
             const minScale = 0.5;
             const maxScale = 10;
             const values = [0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
             
-            // グリッド線を描画（大枠の内側）
             ctx.strokeStyle = '#eff2f5';
             ctx.lineWidth = 1;
             
             for (let i = 0; i < values.length; i++) {
                 const value = values[i];
-                // 正規化: 0.5=0, 10=1 の範囲で計算
                 const normalizedValue = (value - minScale) / (maxScale - minScale);
                 const y = margin + chartHeight - (normalizedValue * chartHeight);
                 
@@ -629,64 +756,15 @@
                 ctx.stroke();
             }
 
-            // 価格線を描画（大枠の内側）
             if (priceHistory.length > 0) {
                 const initialValue = 1;
                 const currentPrice = priceHistory[priceHistory.length - 1];
                 const lineColor = currentPrice >= initialValue ? '#00d4aa' : '#ea3943';
                 
-                // 価格線
                 ctx.strokeStyle = lineColor;
                 ctx.lineWidth = 3;
                 ctx.beginPath();
 
-                for (let i = 0; i < priceHistory.length; i++) {
-                    let x;
-                    if (priceHistory.length === 1) {
-                        // 1つのポイントの場合は中央に配置
-                        x = margin + chartWidth * 0.8;
-                    } else {
-                        // 複数のポイントの場合は左端から右端まで均等配置
-                        x = margin + (chartWidth * i) / (priceHistory.length - 1);
-                    }
-                    const normalizedPrice = Math.max(0, Math.min(1, (priceHistory[i] - minScale) / (maxScale - minScale)));
-                    const y = margin + chartHeight - (normalizedPrice * chartHeight);
-
-                    if (i === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
-                }
-                ctx.stroke();
-
-                // 現在値のポイント
-                if (priceHistory.length >= 1) {
-                    let lastX;
-                    if (priceHistory.length === 1) {
-                        lastX = margin + chartWidth * 0.8;
-                    } else {
-                        lastX = margin + chartWidth; // 最後のポイントは右端
-                    }
-                    const lastNormalizedPrice = Math.max(0, Math.min(1, (priceHistory[priceHistory.length - 1] - minScale) / (maxScale - minScale)));
-                    const lastY = margin + chartHeight - (lastNormalizedPrice * chartHeight);
-
-                    ctx.fillStyle = lineColor;
-                    ctx.beginPath();
-                    ctx.arc(lastX, lastY, 6, 0, 2 * Math.PI);
-                    ctx.fill();
-                }
-
-                // グラデーション効果
-                const gradient = ctx.createLinearGradient(0, margin, 0, margin + chartHeight);
-                const gradientColor = currentPrice >= initialValue ? 
-                    'rgba(0, 212, 170, 0.1)' : 'rgba(234, 57, 67, 0.1)';
-                gradient.addColorStop(0, gradientColor);
-                gradient.addColorStop(1, 'rgba(0, 0, 0, 0.0)');
-
-                ctx.fillStyle = gradient;
-                ctx.beginPath();
-                ctx.moveTo(margin, margin + chartHeight);
                 for (let i = 0; i < priceHistory.length; i++) {
                     let x;
                     if (priceHistory.length === 1) {
@@ -698,7 +776,6 @@
                     const y = margin + chartHeight - (normalizedPrice * chartHeight);
                     ctx.lineTo(x, y);
                 }
-                // 最後のポイントから底辺へ
                 let lastX;
                 if (priceHistory.length === 1) {
                     lastX = margin + chartWidth * 0.8;
@@ -710,18 +787,14 @@
                 ctx.fill();
             }
 
-            // Y軸の数值ラベル（チャートの境界線の外側に絶対配置）
-            const chartElement = canvas.parentElement; // .chart
-            const chartWrapper = chartElement.parentElement; // .chart-wrapper
+            const chartElement = canvas.parentElement;
+            const chartWrapper = chartElement.parentElement;
             
-            // 既存のラベルを削除
             const existingLabels = chartWrapper.querySelectorAll('.y-axis-label');
             existingLabels.forEach(label => label.remove());
             
-            // 新しいラベルを作成（chart-wrapper内、チャートの外側に配置）
             for (let i = 0; i < values.length; i++) {
                 const value = values[i];
-                // グリッド線と同じ位置計算
                 const normalizedValue = (value - minScale) / (maxScale - minScale);
                 const y = margin + chartHeight - (normalizedValue * chartHeight);
                 
@@ -746,26 +819,33 @@
             spinCount++;
 
             const roulette = document.getElementById('roulette');
+            const rouletteWheel = document.getElementById('rouletteWheel');
             const resultImage = document.getElementById('resultImage');
             const randomEvent = events[Math.floor(Math.random() * events.length)];
             
-            // ②：ルーレット回転中
-            const finalRotation = 2160 + (Math.random() * 360); // 6回転 + ランダム
-            roulette.style.transform = `rotate(${finalRotation}deg)`;
-
+            // ルーレット回転
+            roulette.classList.add('spinning');
+            
             setTimeout(() => {
-                // ③：結果表示 - ルーレットを隠して結果画像を表示
-                roulette.style.display = 'none';
+                // 結果表示
+                rouletteWheel.style.display = 'none';
                 resultImage.style.display = 'flex';
                 document.getElementById('rouletteInstruction').style.display = 'none';
                 
-                // 画像は既にHTMLに設定済みなので変更不要
+                // 画像表示
+                const resultImg = document.getElementById('resultImg');
+                if (randomEvent.imageUrl && randomEvent.imageUrl !== "") {
+                    resultImg.src = randomEvent.imageUrl;
+                } else {
+                    // デフォルト画像（W）
+                    resultImg.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjI4MCIgdmlld0JveD0iMCAwIDI4MCAyODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMTQwIiBjeT0iMTQwIiByPSIxNDAiIGZpbGw9IiM2NjdlZWEiLz48dGV4dCB4PSIxNDAiIHk9IjE3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMjAiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIj5XPC90ZXh0Pjwvc3ZnPg==';
+                }
+                resultImg.alt = randomEvent.text;
 
-                // 価格変動（+個数で計算）
+                // 価格変動
                 currentValue = Math.max(0.5, Math.min(10, currentValue + randomEvent.change));
                 priceHistory.push(currentValue);
                 
-                // 最高・最低価格更新
                 maxValue = Math.max(maxValue, currentValue);
                 minValue = Math.min(minValue, currentValue);
 
@@ -785,15 +865,15 @@
                 updateDisplay();
 
                 setTimeout(() => {
-                    // 元の状態に戻す
+                    // リセット
                     document.getElementById('roulettePopup').style.display = 'none';
-                    roulette.style.display = 'flex';
+                    rouletteWheel.style.display = 'flex';
+                    roulette.classList.remove('spinning');
                     resultImage.style.display = 'none';
                     resultDisplay.style.display = 'none';
                     document.getElementById('rouletteInstruction').style.display = 'block';
                     isRouletteOpen = false;
                     isSpinning = false;
-                    roulette.style.transform = 'rotate(0deg)';
                     resultDisplay.innerHTML = '';
                     document.getElementById('rouletteInstruction').textContent = 'もう一度Enterキーを押してルーレットを回す！';
                 }, 3000);
@@ -816,4 +896,47 @@
         updateDisplay();
     </script>
 </body>
-</html>
+</html> * chartHeight);
+
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.stroke();
+
+                if (priceHistory.length >= 1) {
+                    let lastX;
+                    if (priceHistory.length === 1) {
+                        lastX = margin + chartWidth * 0.8;
+                    } else {
+                        lastX = margin + chartWidth;
+                    }
+                    const lastNormalizedPrice = Math.max(0, Math.min(1, (priceHistory[priceHistory.length - 1] - minScale) / (maxScale - minScale)));
+                    const lastY = margin + chartHeight - (lastNormalizedPrice * chartHeight);
+
+                    ctx.fillStyle = lineColor;
+                    ctx.beginPath();
+                    ctx.arc(lastX, lastY, 6, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+
+                const gradient = ctx.createLinearGradient(0, margin, 0, margin + chartHeight);
+                const gradientColor = currentPrice >= initialValue ? 
+                    'rgba(0, 212, 170, 0.1)' : 'rgba(234, 57, 67, 0.1)';
+                gradient.addColorStop(0, gradientColor);
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0.0)');
+
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.moveTo(margin, margin + chartHeight);
+                for (let i = 0; i < priceHistory.length; i++) {
+                    let x;
+                    if (priceHistory.length === 1) {
+                        x = margin + chartWidth * 0.8;
+                    } else {
+                        x = margin + (chartWidth * i) / (priceHistory.length - 1);
+                    }
+                    const normalizedPrice = Math.max(0, Math.min(1, (priceHistory[i] - minScale) / (maxScale - minScale)));
+                    const y = margin + chartHeight - (normalizedPrice
