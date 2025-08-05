@@ -543,7 +543,9 @@
             <div class="roulette" id="roulette">
                 <div class="roulette-center">💰</div>
             </div>
-            <div class="result-image" id="resultImage">🎉</div>
+            <div class="result-image" id="resultImage" style="display: none;">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiByeD0iMTAwIiBmaWxsPSIjRkZENzAwIi8+CjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iNzAiIGZpbGw9IiNGRkYiLz4KPHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeD0iNzAiIHk9IjcwIj4KPHA+VzwvcD4KPC9zdmc+Cjx0ZXh0IHg9IjEwMCIgeT0iMTEwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjM2IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzMzMzMzMyIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIj5XPC90ZXh0Pgo8L3N2Zz4=" alt="今里コイン" />
+            </div>
             <div class="instruction" id="rouletteInstruction">もう一度Enterキーを押してルーレットを回す！</div>
             <div class="result-display" id="resultDisplay" style="display: none;"></div>
         </div>
@@ -746,23 +748,18 @@
             const roulette = document.getElementById('roulette');
             const resultImage = document.getElementById('resultImage');
             const randomEvent = events[Math.floor(Math.random() * events.length)];
-            const spins = 5 + Math.random() * 5;
-            const finalRotation = spins * 360 + (Math.random() * 360);
-
+            
             // ②：ルーレット回転中
-            const spins = 6; // 6回転
-            const finalRotation = spins * 360 + (Math.random() * 360);
+            const finalRotation = 2160 + (Math.random() * 360); // 6回転 + ランダム
             roulette.style.transform = `rotate(${finalRotation}deg)`;
-            roulette.style.transition = 'transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
 
             setTimeout(() => {
                 // ③：結果表示 - ルーレットを隠して結果画像を表示
                 roulette.style.display = 'none';
                 resultImage.style.display = 'flex';
-                document.getElementById('rouletteInstruction').style.display = 'none'; // インストラクションを隠す
+                document.getElementById('rouletteInstruction').style.display = 'none';
                 
-                // 今里コインのシンボル（W）を表示
-                resultImage.textContent = 'W';
+                // 画像は既にHTMLに設定済みなので変更不要
 
                 // 価格変動（+個数で計算）
                 currentValue = Math.max(0.5, Math.min(10, currentValue + randomEvent.change));
@@ -775,7 +772,7 @@
                 const resultDisplay = document.getElementById('resultDisplay');
                 resultDisplay.style.background = '#ffffff';
                 resultDisplay.style.color = '#1e1932';
-                resultDisplay.style.display = 'block'; // 結果表示時のみ表示
+                resultDisplay.style.display = 'block';
                 resultDisplay.innerHTML = `
                     <div class="event-text" style="color: ${randomEvent.color}">
                         ${randomEvent.text}
@@ -790,17 +787,17 @@
                 setTimeout(() => {
                     // 元の状態に戻す
                     document.getElementById('roulettePopup').style.display = 'none';
-                    roulette.style.display = 'block';
+                    roulette.style.display = 'flex';
                     resultImage.style.display = 'none';
-                    resultDisplay.style.display = 'none'; // 結果表示を隠す
-                    document.getElementById('rouletteInstruction').style.display = 'block'; // インストラクションを表示
+                    resultDisplay.style.display = 'none';
+                    document.getElementById('rouletteInstruction').style.display = 'block';
                     isRouletteOpen = false;
                     isSpinning = false;
                     roulette.style.transform = 'rotate(0deg)';
                     resultDisplay.innerHTML = '';
                     document.getElementById('rouletteInstruction').textContent = 'もう一度Enterキーを押してルーレットを回す！';
                 }, 3000);
-            }, 3000);
+            }, 4000);
         }
 
         document.addEventListener('keydown', function(event) {
