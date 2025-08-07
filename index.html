@@ -76,14 +76,11 @@
         .coin-logo {
             width: 48px;
             height: 48px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 50%;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: white;
         }
 
         .coin-info h1 {
@@ -99,10 +96,12 @@
 
         /* Price Section */
         .current-price {
-            font-size: 24px;
+            font-size: 32px;
             font-weight: 700;
             color: #1e1932;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+            padding: 20px 0;
         }
 
         .price-change {
@@ -492,7 +491,9 @@
             <!-- 1. Coin Header -->
             <div class="sidebar-section">
                 <div class="coin-header">
-                    <div class="coin-logo">W</div>
+                    <div class="coin-logo">
+                        <img src="https://drive.google.com/uc?export=view&id=1m1v4W5AEGbqSzdhRn1w-4RijKb5rQDxs" alt="今里コイン" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                    </div>
                     <div class="coin-info">
                         <h1>今里コイン</h1>
                         <div class="coin-symbol">WATARU</div>
@@ -585,8 +586,7 @@
 
         <!-- 13. Exchange Rates (Top Right) -->
         <div class="rates-section">
-            <div class="sidebar-title">今里コインレート</div>
-            <div class="current-price" id="currentPrice">1.0お菓子(小)</div>
+            <div class="current-price" id="currentPrice" style="font-size: 36px; text-align: center; padding: 30px 0; margin-bottom: 30px;">1 WATARU = 1.0お菓子(小)</div>
             <ul class="rate-list">
                 <li class="rate-item">
                     <span class="rate-name">1 WATARU</span>
@@ -707,7 +707,7 @@
         ];
 
         function updateDisplay() {
-            document.getElementById('currentPrice').textContent = `${currentValue.toFixed(1)}お菓子(小)`;
+            document.getElementById('currentPrice').textContent = `1 WATARU = ${currentValue.toFixed(1)}お菓子(小)`;
             
             const initialValue = 1;
             const changePercent = ((currentValue - initialValue) / initialValue * 100).toFixed(1);
