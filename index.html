@@ -682,55 +682,361 @@
         let isSpinning = false;
         let waitingForClose = false;
 
+        // 音声関連の初期化
+        let audioContext = null;
+        let drumrollOscillator = null;
+
+        // AudioContextの初期化（ユーザー操作時に行う）
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // ドラムロール音の生成
+        function playDrumroll() {
+            if (!audioContext) return;
+
+            // デジタルルーレット風（電子音）
+            const notes = [523.25, 587.33, 659.25, 698.46, 783.99]; // C, D, E, F, G
+            let noteIndex = 0;
+            let intervalTime = 100; // 初期間隔
+            let currentInterval;
+            
+            const playNote = () => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                // 音階を循環
+                osc.frequency.value = notes[noteIndex % notes.length];
+                osc.type = 'triangle'; // 三角波で柔らかい電子音
+                
+                gain.gain.setValueAtTime(0.15, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                osc.start();
+                osc.stop(audioContext.currentTime + 0.1);
+                
+                noteIndex++;
+                
+                // 徐々に速くなる効果
+                if (intervalTime > 50) {
+                    intervalTime -= 2;
+                }
+                
+                // 次の音をスケジュール
+                if (noteIndex < 80) { // 約4秒分
+                    currentInterval = setTimeout(playNote, intervalTime);
+                }
+            };
+            
+            playNote();
+        }
+
+        // 結果音の再生
+        function playResultSound(isPositive) {
+            if (!audioContext) return;
+
+            if (isPositive) {
+                // ポジティブ：上昇するアルペジオ（レベルアップ音）
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C, E, G, C
+                notes.forEach((freq, i) => {
+                    setTimeout(() => {
+                        const osc = audioContext.createOscillator();
+                        const gain = audioContext.createGain();
+                        
+                        osc.connect(gain);
+                        gain.connect(audioContext.destination);
+                        
+                        osc.frequency.value = freq;
+                        osc.type = 'sine';
+                        
+                        gain.gain.setValueAtTime(0, audioContext.currentTime);
+                        gain.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.05);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                        
+                        osc.start();
+                        osc.stop(audioContext.currentTime + 0.4);
+                        
+                        // キラキラ効果のための高音
+                        const sparkle = audioContext.createOscillator();
+                        const sparkleGain = audioContext.createGain();
+                        
+                        sparkle.connect(sparkleGain);
+                        sparkleGain.connect(audioContext.destination);
+                        
+                        sparkle.frequency.value = freq * 2; // 1オクターブ上
+                        sparkle.type = 'sine';
+                        
+                        sparkleGain.gain.setValueAtTime(0, audioContext.currentTime);
+                        sparkleGain.gain.linearRampToValueAtTime(0.05, audioContext.currentTime + 0.02);
+                        sparkleGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                        
+                        sparkle.start();
+                        sparkle.stop(audioContext.currentTime + 0.2);
+                    }, i * 100);
+                });
+            } else {
+                // ネガティブ：下降音
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                osc.frequency.setValueAtTime(440, audioContext.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(110, audioContext.currentTime + 0.5);
+                osc.type = 'sine';
+                
+                gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                
+                osc.start();
+                osc.stop(audioContext.currentTime + 0.5);
+                
+                // 低音の振動効果
+                const bass = audioContext.createOscillator();
+                const bassGain = audioContext.createGain();
+                
+                bass.connect(bassGain);
+                bassGain.connect(audioContext.destination);
+                
+                bass.frequency.value = 55; // 低いA
+                bass.type = 'sine';
+                
+                bassGain.gain.setValueAtTime(0.1, audioContext.currentTime);
+                bassGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+                
+                bass.start();
+                bass.stop(audioContext.currentTime + 0.8);
+            }
+        }
+
+        // クリック音の再生
+        function playClickSound() {
+            if (!audioContext) return;
+
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.05);
+        }
+
         // イベント設定 - imageUrlを簡単に設定できるように配列化
         const events = [
+            // ポジティブイベント
             { 
-                text: "大当たり！お菓子工場を発見！", 
-                change: 3, 
-                color: "#00d4aa",
-                imageUrl: "" // ここに画像URLを設定してください
-            },
-            { 
-                text: "ラッキー！お菓子セールが開催中！", 
-                change: 2, 
-                color: "#00d4aa",
-                imageUrl: "" // ここに画像URLを設定してください
-            },
-            { 
-                text: "お菓子の需要が増加しています", 
+                text: "新聞に導入事例が掲載される", 
                 change: 1, 
                 color: "#00d4aa",
-                imageUrl: "" // ここに画像URLを設定してください
+                imageUrl: "https://i.imgur.com/RTHhGhX.png"
             },
             { 
-                text: "平和な一日でした", 
-                change: 0, 
-                color: "#8a93a4",
-                imageUrl: "" // ここに画像URLを設定してください
+                text: "海外のカンファレンスで公演", 
+                change: 2, 
+                color: "#00d4aa",
+                imageUrl: "https://i.imgur.com/ZffsJrJ.png"
             },
             { 
-                text: "お菓子の原料がやや高騰...", 
-                change: -1, 
-                color: "#ea3943",
-                imageUrl: "" // ここに画像URLを設定してください
+                text: "CMが話題になる", 
+                change: 2, 
+                color: "#00d4aa",
+                imageUrl: "https://i.imgur.com/TCLnjjC.png"
             },
             { 
-                text: "お菓子工場でトラブル発生", 
-                change: -2, 
-                color: "#ea3943",
-                imageUrl: "" // ここに画像URLを設定してください
-            },
-            { 
-                text: "大不況！お菓子が貴重品に！", 
-                change: -3, 
-                color: "#ea3943",
-                imageUrl: "" // ここに画像URLを設定してください
-            },
-            { 
-                text: "奇跡！お菓子の雨が降った！", 
+                text: "今里本部長が副社長就任", 
                 change: 5, 
                 color: "#00d4aa",
-                imageUrl: "" // ここに画像URLを設定してください
+                imageUrl: "https://i.imgur.com/Zw1OJQK.png"
+            },
+            { 
+                text: "新製品・新サービスが好評", 
+                change: 1, 
+                color: "#00d4aa",
+                imageUrl: "https://i.imgur.com/NaO36Hm.png"
+            },
+            { 
+                text: "業界大手との提携発表", 
+                change: 3, 
+                color: "#00d4aa",
+                imageUrl: "https://i.imgur.com/rMuwK6v.png"
+            },
+            { 
+                text: "株価上昇", 
+                change: 1, 
+                color: "#00d4aa",
+                imageUrl: "https://i.imgur.com/gRBkqiJ.png"
+            },
+            { 
+                text: "社員の士気向上＆離職率低下", 
+                change: 1, 
+                color: "#00d4aa",
+                imageUrl: "https://i.imgur.com/3dByHPV.png"
+            },
+            { 
+                text: "質の高い商品で顧客満足度が向上", 
+                change: 1, 
+                color: "#00d4aa",
+                imageUrl: "https://i.imgur.com/Oplx96Z.png"
+            },
+            { 
+                text: "特許や技術認証を取得", 
+                change: 2, 
+                color: "#00d4aa",
+                imageUrl: "https://i.imgur.com/MiJztmE.png"
+            },
+            { 
+                text: "社会貢献活動で高評価", 
+                change: 1, 
+                color: "#00d4aa",
+                imageUrl: "https://i.imgur.com/5AGyuOu.png"
+            },
+            { 
+                text: "重要市場でのシェア拡大", 
+                change: 1, 
+                color: "#00d4aa",
+                imageUrl: "https://i.imgur.com/k8nlTGW.png"
+            },
+            { 
+                text: "海外展開の成功", 
+                change: 2, 
+                color: "#00d4aa",
+                imageUrl: "https://i.imgur.com/IRnWv5W.png"
+            },
+            { 
+                text: "社内のDXが進展", 
+                change: 1, 
+                color: "#00d4aa",
+                imageUrl: "https://i.imgur.com/uK1mFyI.png"
+            },
+            // ネガティブイベント
+            { 
+                text: "ライバル企業との競争激化", 
+                change: -1, 
+                color: "#ea3943",
+                imageUrl: "https://i.imgur.com/DMmh1VF.png"
+            },
+            { 
+                text: "地震で業務ストップ", 
+                change: -1, 
+                color: "#ea3943",
+                imageUrl: "https://i.imgur.com/FigowJm.png"
+            },
+            { 
+                text: "製品リコール発生", 
+                change: -1, 
+                color: "#ea3943",
+                imageUrl: "https://i.imgur.com/9CLuNHg.png"
+            },
+            { 
+                text: "ストライキで業務がストップ", 
+                change: -2, 
+                color: "#ea3943",
+                imageUrl: "https://i.imgur.com/DpmJXZw.png"
+            },
+            { 
+                text: "サイバー攻撃で情報漏洩", 
+                change: -3, 
+                color: "#ea3943",
+                imageUrl: "https://i.imgur.com/Siw7x5T.png"
+            },
+            { 
+                text: "株価下落", 
+                change: -2, 
+                color: "#ea3943",
+                imageUrl: "https://i.imgur.com/Yt7TMaL.png"
+            },
+            { 
+                text: "重要人材の退職、人材流出", 
+                change: -3, 
+                color: "#ea3943",
+                imageUrl: "https://i.imgur.com/WZ4Ofqt.png"
+            },
+            { 
+                text: "物流の遅延、コストの増加", 
+                change: -1, 
+                color: "#ea3943",
+                imageUrl: "https://i.imgur.com/5q6RkMP.png"
+            },
+            { 
+                text: "主要取引先の倒産", 
+                change: -1, 
+                color: "#ea3943",
+                imageUrl: "https://i.imgur.com/dOYlQBH.png"
+            },
+            { 
+                text: "通勤中チカンに間違えられる", 
+                change: -1, 
+                color: "#ea3943",
+                imageUrl: "https://i.imgur.com/PVTKwZO.png"
+            },
+            { 
+                text: "交通事故を起こす", 
+                change: -1, 
+                color: "#ea3943",
+                imageUrl: "https://i.imgur.com/djBSmo5.png"
+            },
+            { 
+                text: "通勤ラッシュに巻き込まれる", 
+                change: -1, 
+                color: "#ea3943",
+                imageUrl: "https://i.imgur.com/XTBDdid.png"
+            },
+            { 
+                text: "酔っ払って記憶をなくす", 
+                change: -1, 
+                color: "#ea3943",
+                imageUrl: "https://i.imgur.com/fEqbomE.png"
+            },
+            { 
+                text: "監査で不備を指摘される", 
+                change: -2, 
+                color: "#ea3943",
+                imageUrl: "https://i.imgur.com/PqQkGoG.png"
+            },
+            // ニュートラルイベント
+            { 
+                text: "うまいラーメン店を発見", 
+                change: 0, 
+                color: "#8a93a4",
+                imageUrl: "https://i.imgur.com/ZkwoZvT.png"
+            },
+            { 
+                text: "観に行った映画が面白かった", 
+                change: 0, 
+                color: "#8a93a4",
+                imageUrl: "https://i.imgur.com/zsO2ZWE.png"
+            },
+            { 
+                text: "職場のエアコンが寒い", 
+                change: 0, 
+                color: "#8a93a4",
+                imageUrl: "https://i.imgur.com/Bvtry33.png"
+            },
+            { 
+                text: "寝癖が芸術的", 
+                change: 0, 
+                color: "#8a93a4",
+                imageUrl: "https://i.imgur.com/SOVnbGD.png"
+            },
+            { 
+                text: "カレーが辛い", 
+                change: 0, 
+                color: "#8a93a4",
+                imageUrl: "https://i.imgur.com/h2EDYfc.png"
             }
         ];
 
@@ -897,11 +1203,17 @@
             // ルーレット回転
             roulette.classList.add('spinning');
             
+            // ドラムロール音を再生
+            playDrumroll();
+            
             setTimeout(() => {
                 // 結果表示
                 rouletteWheel.style.display = 'none';
                 resultImage.style.display = 'flex';
                 document.getElementById('rouletteInstruction').style.display = 'none';
+                
+                // 結果音を再生
+                playResultSound(randomEvent.change >= 0);
                 
                 // 画像表示
                 const resultImg = document.getElementById('resultImg');
@@ -909,7 +1221,7 @@
                     resultImg.src = randomEvent.imageUrl;
                 } else {
                     // デフォルト画像（W）
-                    resultImg.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjI4MCIgdmlld0JveD0iMCAwIDI4MCAyODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMTQwIiBjeT0iMTQwIiByPSIxNDAiIGZpbGw9IiM2NjdlZWEiLz48dGV4dCB4PSIxNDAiIHk9IjE3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMjAiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSIgZm9udC1fYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIj5XPC90ZXh0Pjwvc3ZnPg==';
+                    resultImg.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjI4MCIgdmlld0BveD0iMCAwIDI4MCAyODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMTQwIiBjeT0iMTQwIiByPSIxNDAiIGZpbGw9IiM2NjdlZWEiLz48dGV4dCB4PSIxNDAiIHk9IjE3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMjAiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIj5XPC90ZXh0Pjwvc3ZnPg==';
                 }
                 resultImg.alt = randomEvent.text;
 
@@ -963,6 +1275,12 @@
 
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
+                // 初回のEnterキーでAudioContextを初期化
+                initAudio();
+                
+                // クリック音を再生
+                playClickSound();
+                
                 // 結果表示中の場合は閉じる
                 if (waitingForClose) {
                     closeResult();
