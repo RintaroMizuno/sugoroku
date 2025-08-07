@@ -84,7 +84,7 @@
         }
 
         .coin-info h1 {
-            font-size: 20px;
+            font-size: 24px;
             margin-bottom: 4px;
             color: #1e1932;
         }
@@ -432,24 +432,51 @@
 
         .result-display {
             margin-top: 20px;
-            padding: 20px;
-            background: #0d1421;
-            border-radius: 10px;
-            font-size: 1.2rem;
-            min-height: 60px;
-            border: 1px solid #2d3748;
-            color: #ffffff;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 15px;
+            min-height: 200px;
+            border: 3px solid #667eea;
+            color: #1e1932;
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.2);
+            text-align: center;
         }
 
         .event-text {
             font-weight: bold;
-            color: #ffffff;
-            margin-bottom: 10px;
+            font-size: 1.6rem;
+            margin-bottom: 20px;
         }
 
-        .change-text {
+        .change-number {
+            font-size: 4rem;
+            font-weight: 900;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .arrow-down {
+            font-size: 2rem;
+            margin: 10px 0;
+            color: #8a93a4;
+        }
+
+        .current-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1e1932;
+            background: #f8fafd;
+            padding: 15px 30px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .close-instruction {
+            margin-top: 30px;
+            font-size: 1.1rem;
             color: #667eea;
-            font-size: 1rem;
+            animation: pulse 2s infinite;
         }
 
         .instruction {
@@ -653,6 +680,7 @@
         let spinCount = 0;
         let isRouletteOpen = false;
         let isSpinning = false;
+        let waitingForClose = false;
 
         // イベント設定 - imageUrlを簡単に設定できるように配列化
         const events = [
@@ -881,7 +909,7 @@
                     resultImg.src = randomEvent.imageUrl;
                 } else {
                     // デフォルト画像（W）
-                    resultImg.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjI4MCIgdmlld0JveD0iMCAwIDI4MCAyODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMTQwIiBjeT0iMTQwIiByPSIxNDAiIGZpbGw9IiM2NjdlZWEiLz48dGV4dCB4PSIxNDAiIHk9IjE3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMjAiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIj5XPC90ZXh0Pjwvc3ZnPg==';
+                    resultImg.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjI4MCIgdmlld0JveD0iMCAwIDI4MCAyODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMTQwIiBjeT0iMTQwIiByPSIxNDAiIGZpbGw9IiM2NjdlZWEiLz48dGV4dCB4PSIxNDAiIHk9IjE3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxMjAiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSIgZm9udC1fYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIj5XPC90ZXh0Pjwvc3ZnPg==';
                 }
                 resultImg.alt = randomEvent.text;
 
@@ -893,46 +921,58 @@
                 minValue = Math.min(minValue, currentValue);
 
                 const resultDisplay = document.getElementById('resultDisplay');
-                resultDisplay.style.background = '#ffffff';
-                resultDisplay.style.color = '#1e1932';
                 resultDisplay.style.display = 'block';
+                const changeSymbol = randomEvent.change >= 0 ? '+' : '';
+                const changeColor = randomEvent.change >= 0 ? '#00d4aa' : '#ea3943';
                 resultDisplay.innerHTML = `
-                    <div class="event-text" style="color: ${randomEvent.color}">
+                    <div class="event-text">
                         ${randomEvent.text}
                     </div>
-                    <div class="change-text">
-                        価格変動: ${randomEvent.change >= 0 ? '+' : ''}${randomEvent.change}個 → 現在値: ${currentValue.toFixed(1)}個
+                    <div class="change-number" style="color: ${changeColor}">
+                        ${changeSymbol}${randomEvent.change}個
+                    </div>
+                    <div class="arrow-down">▼</div>
+                    <div class="current-value">
+                        現在値: <span style="color: ${changeColor}">${currentValue.toFixed(1)}</span>個
+                    </div>
+                    <div class="close-instruction">
+                        Enterキーを押して閉じる
                     </div>
                 `;
 
                 updateDisplay();
 
-                setTimeout(() => {
-                    // リセット
-                    document.getElementById('roulettePopup').style.display = 'none';
-                    rouletteWheel.style.display = 'flex';
-                    roulette.classList.remove('spinning');
-                    resultImage.style.display = 'none';
-                    resultDisplay.style.display = 'none';
-                    document.getElementById('rouletteInstruction').style.display = 'block';
-                    isRouletteOpen = false;
-                    isSpinning = false;
-                    resultDisplay.innerHTML = '';
-                    document.getElementById('rouletteInstruction').textContent = 'もう一度Enterキーを押してルーレットを回す！';
-                }, 3000);
+                // Enterキーで閉じるようにフラグを設定
+                isSpinning = false;
+                waitingForClose = true;
             }, 4000);
         }
 
+        function closeResult() {
+            document.getElementById('roulettePopup').style.display = 'none';
+            document.getElementById('rouletteWheel').style.display = 'flex';
+            document.getElementById('roulette').classList.remove('spinning');
+            document.getElementById('resultImage').style.display = 'none';
+            document.getElementById('resultDisplay').style.display = 'none';
+            document.getElementById('rouletteInstruction').style.display = 'block';
+            isRouletteOpen = false;
+            waitingForClose = false;
+            document.getElementById('resultDisplay').innerHTML = '';
+            document.getElementById('rouletteInstruction').textContent = 'もう一度Enterキーを押してルーレットを回す！';
+        }
+
         document.addEventListener('keydown', function(event) {
-            console.log('Key pressed:', event.key);
             if (event.key === 'Enter') {
-                console.log('Enter key detected. isRouletteOpen:', isRouletteOpen, 'isSpinning:', isSpinning);
+                // 結果表示中の場合は閉じる
+                if (waitingForClose) {
+                    closeResult();
+                    return;
+                }
+                
                 if (!isRouletteOpen) {
-                    console.log('Opening roulette popup');
                     document.getElementById('roulettePopup').style.display = 'flex';
                     isRouletteOpen = true;
                 } else if (!isSpinning) {
-                    console.log('Starting roulette spin');
                     document.getElementById('rouletteInstruction').textContent = 'ルーレットが回転中...';
                     spinRoulette();
                 }
